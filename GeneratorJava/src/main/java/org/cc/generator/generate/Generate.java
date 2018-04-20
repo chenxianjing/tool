@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 
 import javax.lang.model.element.Modifier;
@@ -456,7 +455,6 @@ public class Generate {
 		/**
 		 * 一键生成实体和mapper和xml文件
 		 */
-		Optional<Generate> o = Optional.empty();
 		Generate propertiesAnalyze = new Generate();
 		propertiesAnalyze.oneTouch();
 	}
