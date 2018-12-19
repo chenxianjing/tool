@@ -30,6 +30,7 @@ import java.util.Properties;
 import javax.lang.model.element.Modifier;
 
 import org.cc.generator.entity.DatabaseReflect;
+import org.cc.util.StringUtils;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
@@ -112,6 +113,8 @@ public class Generate {
 	 * 表名字
 	 */
 	private static String classVersion;
+
+	private final DateTimeFormatter dateTimeFormater = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	static {
 		jdbcJavaTypes.put(Types.BIT, Boolean.class);
@@ -212,7 +215,6 @@ public class Generate {
 					.addJavadoc(e.getAnnotation()).addJavadoc("\n");
 			typeSpec.addField(fieldBuilder.build());
 		});
-		DateTimeFormatter dateTimeFormater = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
 		typeSpec.addJavadoc("实体<br>\n@author " + classAuthor + "\n@date " + dateTimeFormater.format(LocalDateTime.now())
 				+ "\n@since " + classVersion + "\n");
 		TypeSpec generateClass = typeSpec.build();
@@ -229,22 +231,22 @@ public class Generate {
 		ClassName entity = ClassName.get(entityPackagePath, entityName);
 		ClassName list = ClassName.get("java.util", "List");
 		TypeName listEntity = ParameterizedTypeName.get(list, entity);
+		String paramName = StringUtils.firstLetterToLowwer(entityName);
 		MethodSpec queryMethod = MethodSpec.methodBuilder("listAll").returns(listEntity).addJavadoc("查询所有数据\n")
 				.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).build();
 		MethodSpec deleteMethod = MethodSpec.methodBuilder("delete" + entityName)
 				.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).returns(int.class).addJavadoc("根据主键删除数据\n")
-				.addParameter(entity, entityName).build();
+				.addParameter(entity, paramName).build();
 		MethodSpec updateMethod = MethodSpec.methodBuilder("update" + entityName)
 				.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).returns(int.class).addJavadoc("修改\n")
-				.addParameter(entity, entityName).build();
+				.addParameter(entity, paramName).build();
 		MethodSpec addMethod = MethodSpec.methodBuilder("save" + entityName)
 				.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT).returns(int.class).addJavadoc("新增\n")
-				.addParameter(entity, entityName).build();
+				.addParameter(entity, paramName).build();
 		Builder typeSpec = TypeSpec.interfaceBuilder(entityName + "Mapper").addModifiers(Modifier.PUBLIC);
 		typeSpec.addMethod(queryMethod).addMethod(deleteMethod).addMethod(updateMethod).addMethod(addMethod);
-		final DateTimeFormatter dateTimeFormater = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-		typeSpec.addJavadoc("实体<br>\n@author " + classAuthor + "\n@date " + dateTimeFormater.format(LocalDateTime.now())
-				+ "\n@since " + classVersion + "\n");
+		typeSpec.addJavadoc("mapper<br>\n@author " + classAuthor + "\n@date "
+				+ dateTimeFormater.format(LocalDateTime.now()) + "\n@since " + classVersion + "\n");
 		TypeSpec generateClass = typeSpec.build();
 		JavaFile javaFile = JavaFile.builder(mapperPackagePath, generateClass).build();
 		try {
@@ -455,7 +457,9 @@ public class Generate {
 		/**
 		 * 一键生成实体和mapper和xml文件
 		 */
+
 		Generate propertiesAnalyze = new Generate();
 		propertiesAnalyze.oneTouch();
+
 	}
 }
